@@ -2,8 +2,8 @@ name: Build and Publish
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'  # Trigger on tags that start with "v"
   pull_request:
     branches:
       - master
@@ -61,12 +61,9 @@ jobs:
         continue-on-error: true
 
       - name: Publish to PyPI
-        if: github.ref == 'refs/heads/master'
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: pypa/gh-action-pypi-publish@v1.4.2
-        env:
-          POETRY_PYPI_USERNAME: ${{ secrets.POETRY_PYPI_USERNAME }}
-          POETRY_PYPI_API_TOKEN: ${{ secrets.POETRY_PYPI_API_TOKEN }}
         with:
           user: ${{ secrets.POETRY_PYPI_USERNAME }}
-          password: ${{ secrets.POETRY_PYPI_API_TOKEN }}
+          password: ${{ matrix.pkg-dir == 'pkgs/crouton' && secrets.POETRY_PYPI_CROUTON_API_TOKEN || secrets.POETRY_PYPI_CROUTON_CLIENT_API_TOKEN }}
           packages_dir: ${{ matrix.pkg-dir }}/dist
