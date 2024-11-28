@@ -32,7 +32,7 @@ class CroutonClient:
                 query_params[filter_key] = filter_value  
 
             # Construct the query string from the dictionary (filters only)
-            query_string = "&".join([f"{key}={value}" for key, value in query_params.items()])
+            query_string = ":".join([f"{key}>{value}" for key, value in query_params.items()])
 
             # Append the access string with a slash if it exists
             if self.ACCESS_STRING:
@@ -46,7 +46,7 @@ class CroutonClient:
             
             # Add the query string to the URL if it's not empty
             if query_string:
-                url += "/?" + query_string
+                url += "/?query=" + query_string
 
 
         # Perform the GET request
