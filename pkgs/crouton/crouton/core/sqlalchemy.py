@@ -120,7 +120,7 @@ class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
             db: Session = Depends(self.db_func),
             pagination: PAGINATION = self.pagination,
             query: str | None = Query(None),
-        ) -> List[Model] | Model:
+        ) -> List[Model]:
             
             skip, limit = pagination.get("skip"), pagination.get("limit")
 
@@ -136,7 +136,7 @@ class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
                     .filter_by(**new_query)
                     .limit(limit)
                     .offset(skip)
-                    .first()
+                    .all()
                 )
 
                 logger.info(type(db_models))
