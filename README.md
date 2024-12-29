@@ -1,15 +1,44 @@
-# Stable Release Installation
-```python
+![Swamauri Logo](https://res.cloudinary.com/dbjmpekvl/image/upload/v1730099724/Swarmauri-logo-lockup-2048x757_hww01w.png)
+
+<div style="text-align: center;">
+
+[![Hits](https://hits.sh/github.com/swarmauri/swarmakit.svg)](https://hits.sh/github.com/swarmauri/crouton/)
+![NPM Version](https://img.shields.io/npm/v/crouton?label=version)
+![npm downloads](https://img.shields.io/npm/dt/crouton.svg)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+</div>
+
+<div style="text-align: center;">
+
+![Static Badge](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&labelColor=black)
+![Static Badge](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&labelColor=black)
+</div>
+
+---
+
+# Crouton
+
+crouton streamlines CRUD operations in FastAPI applications by auto-generating endpoints for SQLAlchemy models, reducing the need for repetitive code and improving development speed.
+
+By integrating Pydantic for data validation, Crouton ensures type safety and consistent data handling, allowing developers to focus on application logic instead of boilerplate code.
+
+# Installation
+
+## 1. Prerequisites
+
+To install Crouton librarie. Run the following command:
+
+```bash
 pip install crouton
 ```
 
-# Development Release Installation
-```python
+## 2. Development Release Installation
+```bash
 pip install package-name --pre
 ```
-
 # Basic Usage
 Below is a simple example of what the CRUDRouter can do. In just ten lines of code, you can generate all the crud routes you need for any model. A full list of the routes generated can be found here.
+
 ```python
 from sqlalchemy import Column, String, Float, Integer
 from sqlalchemy import create_engine
