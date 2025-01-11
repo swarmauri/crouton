@@ -1,18 +1,30 @@
-![Swamauri Logo](https://res.cloudinary.com/dbjmpekvl/image/upload/v1730099724/Swarmauri-logo-lockup-2048x757_hww01w.png)
-
-
-
-[![Hits](https://hits.sh/github.com/swarmauri/swarmakit.svg)](https://hits.sh/github.com/swarmauri/crouton/)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-![PyPI - Version](https://img.shields.io/pypi/v/crouton?label=Crouton)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/crouton?label=Crouton%20Downloads)
-![PyPI - Version](https://img.shields.io/pypi/v/crouton-client?label=Crouton-Client)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/crouton-client?label=Crouton-Client%20Downloads)
-
-
-![Static Badge](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&labelColor=black)
-
+<p align="center">
+    <a href="https://github.com/swarmauri/crouton/">
+        <img src="https://res.cloudinary.com/dbjmpekvl/image/upload/v1730099724/Swarmauri-logo-lockup-2048x757_hww01w.png" alt="Swamauri Logo"/>
+    </a>
+    <br />
+    <a href="https://hits.sh/github.com/swarmauri/crouton/">
+        <img src="https://hits.sh/github.com/swarmauri/swarmakit.svg" alt="Hits"/>
+    </a>
+    <a href="https://opensource.org/licenses/Apache-2.0">
+        <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"/>
+    </a>
+    <br />
+    <a href="https://pypi.org/project/crouton/">
+        <img src="https://img.shields.io/pypi/v/crouton?label=Crouton" alt="PyPI - Crouton Version"/>
+    </a>
+    <a href="https://pypi.org/project/crouton/">
+        <img src="https://img.shields.io/pypi/dm/crouton?label=Crouton%20Downloads" alt="PyPI - Crouton Downloads"/>
+    </a>
+    <a href="https://pypi.org/project/crouton-client/">
+        <img src="https://img.shields.io/pypi/v/crouton-client?label=Crouton-Client" alt="PyPI - Crouton-Client Version"/>
+    </a>
+    <a href="https://pypi.org/project/crouton-client/">
+        <img src="https://img.shields.io/pypi/dm/crouton-client?label=Crouton-Client%20Downloads" alt="PyPI - Crouton-Client Downloads"/>
+    </a>
+    <br />
+    <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&labelColor=black" alt="Python"/>
+</p>
 
 ---
 
