@@ -8,7 +8,7 @@ warnings.warn(
 )
 
 def __getattr__(name):
-    if name == "CroutonClient":
+    if name == "AsyncCroutonClient":
         module = importlib.import_module("crouton_client.client")
         return getattr(module, "CroutonClient")
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
