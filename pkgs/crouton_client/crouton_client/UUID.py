@@ -13,7 +13,3 @@ class UUIDGenerator(BaseModel):
     def create(self):
         name = str(uuid4())  # Generate a random UUID for the name
         return str(uuid5(self.namespace, name))
-
-# Example usage
-generator = UUIDGenerator()
-print(generator.create())
