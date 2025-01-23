@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crouton_client"
-version = "0.0.6"
+version = "0.1.0"
 description = "A client for Swarmauri's crouton."
 authors = ["Jacob Stewart <jacob@swarmauri.com>"]
 license = "Apache-2.0"
@@ -17,12 +17,12 @@ classifiers = [
 python = ">=3.10,<4.0"
 requests = "*"
 pydantic = "*"
+httpx = "*"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flake8 = "^7.0"  # Add flake8 as a development dependency
 pytest = "^8.0"  # Ensure pytest is also added if you run tests
 pytest-asyncio = ">=0.24.0"
-httpx = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
