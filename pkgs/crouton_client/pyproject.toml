@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crouton_client"
-version = "0.0.5.dev1"
+version = "0.0.5.dev2"
 description = "A client for Swarmauri's crouton."
 authors = ["Jacob Stewart <jacob@swarmauri.com>"]
 license = "Apache-2.0"
