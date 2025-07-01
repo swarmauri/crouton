@@ -3,6 +3,8 @@ from typing import Any, Callable, List, Type, Generator, Optional, Union, Dict
 from fastapi import Depends, HTTPException, Request, Response
 from . import CRUDGenerator, NOT_FOUND, _utils
 from ._types import DEPENDENCIES, PAGINATION, PYDANTIC_SCHEMA as SCHEMA
+import re
+from typing import Tuple
 
 try:
     from sqlalchemy.orm import Session
@@ -20,11 +22,40 @@ else:
 CALLABLE = Callable[..., Model]
 CALLABLE_LIST = Callable[..., List[Model]]
 
+# Regex covers PostgreSQL & SQLite duplicate-key messages.
+_DUPLICATE_RE = re.compile(r"Key \((?P<col>[^)]+)\)=\((?P<val>[^)]+)\) already exists", re.I)
+
+
+def _friendly_integrity_error(orig_exc: Exception) -> Tuple[int, str]:
+    """
+    Map a low-level sqlalchemy.exc.IntegrityError.orig to
+    (HTTP status-code, human-readable message).
+    """
+    raw_msg = str(orig_exc)
+
+    # ----- UNIQUE / PRIMARY-KEY -----------------------------------------
+    if getattr(orig_exc, "pgcode", None) in ("23505",) or "already exists" in raw_msg:
+        match = _DUPLICATE_RE.search(raw_msg)
+        if match:
+            col, val = match["col"], match["val"]
+            return 409, f"Duplicate value '{val}' for field '{col}'."
+        return 409, "Duplicate key value violates a unique constraint."
+
+    # ----- FOREIGN-KEY ---------------------------------------------------
+    if getattr(orig_exc, "pgcode", None) in ("23503",) or "foreign key constraint" in raw_msg:
+        return 422, "Foreign-key constraint failed."
+
+    # ----- NOT-NULL / CHECK / other integrity ---------------------------
+    return 422, raw_msg
+
 
 # Utility function for extracting query parameters
 def _extract_query_params(request: Request) -> Dict[str, Any]:
     """Return query parameters as a dict."""
     return dict(request.query_params)
+
+
+
 
 
 
@@ -124,17 +155,15 @@ class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
             db.commit()
         except IntegrityError as exc:
             db.rollback()
-            # Distinguish “duplicate” vs other relational failures
-            raise HTTPException(
-                status_code=409 if "unique" in str(exc.orig).lower() else 422,
-                detail=str(exc.orig),
-            ) from exc
+            status, detail = _friendly_integrity_error(exc.orig)
+            raise HTTPException(status_code=status, detail=detail) from exc
         except SQLAlchemyError as exc:
             db.rollback()
             raise HTTPException(
                 status_code=500,
                 detail=f"Database error: {exc}",
             ) from exc
+
 
     # ────────────────────────────
     # GET many
@@ -186,14 +215,13 @@ class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
                 obj = self.db_model(**model.dict())
             except (TypeError, ValueError) as exc:
                 raise HTTPException(400, f"Invalid payload: {exc}") from exc
-
+    
             db.add(obj)
-            self._db_commit(db)
-            db.refresh(obj)           # reflect DB-side defaults
-            # FastAPI automatically sets 201 when returning Response after POST
+            self._db_commit(db)   # ← centralised commit & error handling
+            db.refresh(obj)
             return obj
-
         return route
+
 
     # ────────────────────────────
     # UPDATE
