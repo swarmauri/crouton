@@ -47,12 +47,77 @@ class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
     500 Internal      – All uncaught DB / runtime failures.
     """
 
-    # ────────────────────────────
-    # constructor unchanged …
-    # ────────────────────────────
-    def __init__(self, *args, **kwargs) -> None:
-        …
+    def __init__(
+        self,
+        schema: Type[SCHEMA],
+        db_model: Model,
+        db: "Session",
+        create_schema: Optional[Type[SCHEMA]] = None,
+        update_schema: Optional[Type[SCHEMA]] = None,
+        prefix: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        paginate: Optional[int] = None,
+        get_all_route: Union[bool, DEPENDENCIES] = True,
+        get_one_route: Union[bool, DEPENDENCIES] = True,
+        create_route: Union[bool, DEPENDENCIES] = True,
+        update_route: Union[bool, DEPENDENCIES] = True,
+        delete_one_route: Union[bool, DEPENDENCIES] = True,
+        delete_all_route: Union[bool, DEPENDENCIES] = True,
+        **kwargs: Any
+    ) -> None:
+        assert (
+            sqlalchemy_installed
+        ), "SQLAlchemy must be installed to use the SQLAlchemyCRUDRouter."
 
+        self.db_model = db_model
+        self.db_func = db
+        self._pk: str = db_model.__table__.primary_key.columns.keys()[0]
+        self._pk_type: type = _utils.get_pk_type(schema, self._pk)
+
+        super().__init__(
+            schema=schema,
+            create_schema=create_schema,
+            update_schema=update_schema,
+            prefix=prefix or db_model.__tablename__,
+            tags=tags,
+            paginate=paginate,
+            get_all_route=get_all_route,
+            get_one_route=get_one_route,
+            create_route=create_route,
+            update_route=update_route,
+            delete_one_route=delete_one_route,
+            delete_all_route=delete_all_route,
+            **kwargs,
+        )
+
+    def _parse_query_params(self, query_params: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Parse query parameters into filters for the database query.
+        Exclude pagination-related parameters like 'skip' and 'limit'.
+        """
+        filters = {}
+        accepted_fields = self.db_model.__table__.columns
+    
+        # Exclude pagination-related parameters
+        excluded_params = {"skip", "limit"}
+    
+        for key, value in query_params.items():
+            if key in excluded_params:
+                continue  # Skip pagination parameters
+            if key in accepted_fields:
+                column = getattr(self.db_model, key)
+                try:
+                    column_type = column.type.python_type
+                    parsed_value = column_type(value)
+                    filters[key] = parsed_value
+                except (ValueError, TypeError) as e:
+                    raise HTTPException(
+                        status_code=422, detail=f"Invalid value for {key}: {e}"
+                    )
+            else:
+                raise HTTPException(400, f"Invalid filter field: {key}")
+    
+        return filters
     # ────────────────────────────
     # helpers
     # ────────────────────────────
