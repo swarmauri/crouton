@@ -1,13 +1,13 @@
 from typing import Any, Callable, List, Type, Generator, Optional, Union, Dict
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request, Response
 from . import CRUDGenerator, NOT_FOUND, _utils
 from ._types import DEPENDENCIES, PAGINATION, PYDANTIC_SCHEMA as SCHEMA
 
 try:
     from sqlalchemy.orm import Session
     from sqlalchemy.ext.declarative import DeclarativeMeta as Model
-    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 except ImportError:
     Model = None
     Session = None
