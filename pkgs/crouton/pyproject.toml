@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crouton"
-version = "0.1.3"
+version = "0.1.4"
 description = "A repository to enable API CRUD Routing"
 authors = ["Jacob Stewart <jacob@swarmauri.com>"]
 license = "Apache-2.0"
