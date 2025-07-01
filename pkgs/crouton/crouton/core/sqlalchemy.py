@@ -22,12 +22,10 @@ CALLABLE_LIST = Callable[..., List[Model]]
 
 
 # Utility function for extracting query parameters
-def query_params(request: Request) -> Dict[str, Any]:
-    """
-    Extract query parameters from the incoming request
-    and return them as a dictionary.
-    """
+def _extract_query_params(request: Request) -> Dict[str, Any]:
+    """Return query parameters as a dict."""
     return dict(request.query_params)
+
 
 
 class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
@@ -145,9 +143,9 @@ class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
         def route(
             db: Session = Depends(self.db_func),
             pagination: PAGINATION = self.pagination,
-            query_params: Dict[str, Any] = Depends(query_params),
+            qp: Optional[Dict[str, Any]] = Depends(_extract_query_params),
         ) -> List[Model]:
-            filters = self._parse_query_params(query_params)
+            filters = self._parse_query_params(qp or {})          # ← tolerate None
             objs = (
                 db.query(self.db_model)
                 .filter_by(**filters)
@@ -159,7 +157,7 @@ class SQLAlchemyCRUDRouter(CRUDGenerator[SCHEMA]):
             if not objs:
                 raise HTTPException(404, "No matching records found.")
             return objs
-
+    
         return route
 
     # ────────────────────────────
