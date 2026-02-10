@@ -9,11 +9,15 @@ from typing import (
     Union,
 )
 
+import logging
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from . import CRUDGenerator, NOT_FOUND
 from ._types import PAGINATION, PYDANTIC_SCHEMA, DEPENDENCIES
 from ._utils import AttrDict, get_pk_type
+
+logger = logging.getLogger(__name__)
 
 try:
     from sqlalchemy.sql.schema import Table
@@ -40,6 +44,7 @@ def pydantify_record(
 
 
 class DatabasesCRUDRouter(CRUDGenerator[PYDANTIC_SCHEMA]):
+    
     def __init__(
         self,
         schema: Type[PYDANTIC_SCHEMA],
@@ -84,6 +89,22 @@ class DatabasesCRUDRouter(CRUDGenerator[PYDANTIC_SCHEMA]):
             **kwargs
         )
 
+    def _handle_db_error(self, e: Exception, default_status: int = 500) -> None:
+        """
+        Centralized database error handler.
+        Logs the real exception and raises an HTTPException.
+        """
+        logger.exception("Database operation failed")
+
+        if isinstance(e, IntegrityError):
+            raise HTTPException(422, "Key already exists") from e   
+
+        elif isinstance(e, SQLAlchemyError):
+            raise HTTPException(default_status, "Database error") from e
+
+        else:
+            raise HTTPException(default_status, "Unexpected server error") from e   
+
     def _get_all(self, *args: Any, **kwargs: Any) -> CALLABLE_LIST:
         async def route(
             pagination: PAGINATION = self.pagination,
@@ -119,8 +140,8 @@ class DatabasesCRUDRouter(CRUDGenerator[PYDANTIC_SCHEMA]):
                     rid = getattr(schema, self._pk, rid)
 
                 return await self._get_one()(rid)
-            except Exception:
-                raise HTTPException(422, "Key already exists") from None
+            except Exception as e:
+                self._handle_db_error(e, default_status=422)
 
         return route
 
@@ -135,8 +156,10 @@ class DatabasesCRUDRouter(CRUDGenerator[PYDANTIC_SCHEMA]):
                     query=query, values=schema.dict(exclude={self._pk})
                 )
                 return await self._get_one()(item_id)
+            except HTTPException:
+                raise
             except Exception as e:
-                raise NOT_FOUND from e
+                self._handle_db_error(e, default_status=404)
 
         return route
 
@@ -157,7 +180,9 @@ class DatabasesCRUDRouter(CRUDGenerator[PYDANTIC_SCHEMA]):
                 row = await self._get_one()(item_id)
                 await self.db.execute(query=query)
                 return row
+            except HTTPException:
+                raise
             except Exception as e:
-                raise NOT_FOUND from e
+                self._handle_db_error(e, default_status=404)
 
         return route
